@@ -8,7 +8,7 @@ import requests
 from dotenv import load_dotenv
 from telegram import Bot
 
-from exceptions import TokenException
+from exceptions import TokenException, HTTPError
 
 load_dotenv()
 
@@ -42,9 +42,13 @@ def send_message(bot: Bot, message: str) -> None:
 
 def get_api_answer(timestamp: int) -> dict:
     """Получаем ответ от эндпоинта."""
-    return requests.get(
-        ENDPOINT, headers=HEADERS, params={"from_date": timestamp}
-    ).json()
+    request = requests.get(
+            ENDPOINT, headers=HEADERS, params={"from_date": timestamp}
+    )
+    if request.status_code == HTTPStatus.OK:
+        return request.json()
+    else:
+        raise HTTPError('Эндпоинт не доступен')
 
 
 def check_response(response: dict) -> bool:
