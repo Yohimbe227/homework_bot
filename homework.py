@@ -42,7 +42,6 @@ def send_message(bot: Bot, message: str) -> None:
 
 def get_api_answer(timestamp: int) -> dict:
     """Получаем ответ от эндпоинта."""
-
     return requests.get(
         ENDPOINT, headers=HEADERS, params={"from_date": timestamp}
     ).json()
@@ -60,7 +59,7 @@ def check_response(response: dict) -> bool:
 
 def parse_status(homework: dict) -> str:
     """Получение строки для отправки телеграм."""
-    return (f'Изменился статус проверки работы '
+    return ('Изменился статус проверки работы '
             f'"{homework.get("homework_name")}". '
             f'{HOMEWORK_VERDICTS.get(homework.get("status"))}')
 
@@ -75,7 +74,7 @@ def main() -> None:
     logger.addHandler(StreamHandler())
     if not check_tokens():
         logger.critical("Нет переменных окружения, работа невозможна")
-        raise TokenException(f"Нет переменных окружения, работа невозможна")
+        raise TokenException("Нет переменных окружения, работа невозможна")
     timestamp = 1663660860
     bot = Bot(TELEGRAM_TOKEN)
     status1, status2 = 0, get_api_answer(timestamp).get("homeworks")[0].get(
@@ -98,8 +97,8 @@ def main() -> None:
                         bot, "отсутствуют ожидаемые ключи в ответе API"
                     )
             if (
-                get_api_answer(timestamp).get("homeworks")[0].get("status")
-                not in HOMEWORK_VERDICTS
+                    get_api_answer(timestamp).get("homeworks")[0].get("status")
+                    not in HOMEWORK_VERDICTS
             ):
                 count3 += 1
                 logger.error("неожиданный статус домашней работы")
