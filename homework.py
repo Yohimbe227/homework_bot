@@ -72,8 +72,10 @@ def check_response(response: dict) -> None:
         or not isinstance(response.get('current_date'), int)
         or not isinstance(response.get('homeworks'), list)
     ):
+        logger.error('Структура данных API не соответствует ожиданиям')
         raise TypeError('Структура данных API не соответствует ожиданиям')
     if response.get('homeworks') is None:
+        logger.error('Ключ homework_name не обнаружен')
         raise NameError('Ключ homework_name не обнаружен')
 
 
@@ -94,7 +96,6 @@ def parse_status(homework: dict) -> str:
 
 def main() -> None:
     """Основная логика работы бота."""
-
     try:
         check_tokens()
     except TokenException as error:
@@ -116,13 +117,11 @@ def main() -> None:
         try:
             check_response(get_api_answer(timestamp))
         except TypeError:
-            logger.error('Структура данных API не соответствует ожиданиям')
             if count1 == 0:
                 send_message(
                     bot, 'Структура данных API не соответствует ожиданиям'
                 )
         except NameError:
-            logger.error('Ключ homework_name не обнаружен')
             if count2 == 0:
                 send_message(bot, 'Ключ homework_name не обнаружен')
                 count2 += 1
@@ -131,18 +130,12 @@ def main() -> None:
             if count3 == 0:
                 send_message(bot, 'ошибка RequestException')
                 count3 += 1
-
         if status1 != status2:
-            try:
-                send_message(
-                    bot,
-                    parse_status(
-                        get_api_answer(timestamp).get("homeworks")[0]
-                    ),
-                )
-                logger.debug('cообщение в Telegram отправлено')
-            except SendMessageError:
-                logger.error('ошибка SendMessageError', exc_info=True)
+            send_message(
+                bot,
+                parse_status(get_api_answer(timestamp).get("homeworks")[0]),
+            )
+            logger.debug('cообщение в Telegram отправлено')
         else:
             logger.debug('отсутствие в ответе новых статусов')
         time.sleep(RETRY_PERIOD)
