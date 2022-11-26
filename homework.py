@@ -94,7 +94,7 @@ def parse_status(homework: dict) -> str:
     )
 
 
-def main() -> None:
+def main() -> None: # noqa C901
     """Основная логика работы бота."""
     try:
         check_tokens()
@@ -121,15 +121,16 @@ def main() -> None:
                 send_message(
                     bot, 'Структура данных API не соответствует ожиданиям'
                 )
+                count1 = 1
         except NameError:
             if count2 == 0:
                 send_message(bot, 'Ключ homework_name не обнаружен')
-                count2 += 1
+                count2 = 1
         except requests.RequestException:
             logger.error('ошибка RequestException', exc_info=True)
             if count3 == 0:
                 send_message(bot, 'ошибка RequestException')
-                count3 += 1
+                count3 = 1
         if status1 != status2:
             send_message(
                 bot,
