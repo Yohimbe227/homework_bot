@@ -5,10 +5,10 @@ from http import HTTPStatus
 from logging import StreamHandler
 
 import requests
-from dotenv import load_dotenv
 import telegram
+from dotenv import load_dotenv
 
-from exceptions import TokenException, HTTPError, StatusError, SendMessageError
+from exceptions import HTTPError, SendMessageError, StatusError, TokenException
 
 load_dotenv()
 
@@ -67,9 +67,11 @@ def get_api_answer(timestamp: int) -> dict:
 
 def check_response(response: dict) -> None:
     """Проверка ответа эндпоинта на соответствие документации API."""
-    if not isinstance(response, dict) or not isinstance(
-            response.get('current_date'), int) or not isinstance(
-        response.get('homeworks'), list):
+    if (
+        not isinstance(response, dict)
+        or not isinstance(response.get('current_date'), int)
+        or not isinstance(response.get('homeworks'), list)
+    ):
         raise TypeError('Структура данных API не соответствует ожиданиям')
     if response.get('homeworks') is None:
         raise NameError('Ключ homework_name не обнаружен')
@@ -83,9 +85,11 @@ def parse_status(homework: dict) -> str:
     if homework.get('homework_name') is None:
         raise NameError('Ключ homework_name не обнаружен')
 
-    return ('Изменился статус проверки работы '
-            f'"{homework.get("homework_name")}". '
-            f'{HOMEWORK_VERDICTS.get(homework.get("status"))}')
+    return (
+        'Изменился статус проверки работы '
+        f'"{homework.get("homework_name")}". '
+        f'{HOMEWORK_VERDICTS.get(homework.get("status"))}'
+    )
 
 
 def main() -> None:
@@ -101,9 +105,11 @@ def main() -> None:
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
 
     status1 = ''
-    status2 = get_api_answer(timestamp).get('homeworks')[0].get(
-        'status') if len(
-        get_api_answer(timestamp).get('homeworks')) > 0 else ''
+    status2 = (
+        get_api_answer(timestamp).get('homeworks')[0].get('status')
+        if len(get_api_answer(timestamp).get('homeworks')) > 0
+        else ''
+    )
 
     count1, count2, count3 = 0, 0, 0
     while True:
@@ -112,8 +118,9 @@ def main() -> None:
         except TypeError:
             logger.error('Структура данных API не соответствует ожиданиям')
             if count1 == 0:
-                send_message(bot,
-                             'Структура данных API не соответствует ожиданиям')
+                send_message(
+                    bot, 'Структура данных API не соответствует ожиданиям'
+                )
         except NameError:
             logger.error('Ключ homework_name не обнаружен')
             if count2 == 0:
@@ -139,9 +146,9 @@ def main() -> None:
         else:
             logger.debug('отсутствие в ответе новых статусов')
         time.sleep(RETRY_PERIOD)
-        status1, status2 = status2, get_api_answer(timestamp).get(
-            'homeworks'
-        )[0].get('status')
+        status1, status2 = status2, get_api_answer(timestamp).get('homeworks')[
+            0
+        ].get('status')
 
 
 if __name__ == '__main__':
