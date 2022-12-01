@@ -1,27 +1,25 @@
-class TokenException(Exception):
-    def __int__(self, *args):
-        if args:
-            self.message = args[0]
-        else:
-            self.message = None
+class Error(Exception):
+    pass
 
+
+class TokenError(Error):
+    def __init__(self, token):
+        self.token = token
+        super().__init__(
+            f'Отсутствует необходимый токен: {token}'
+        )
+
+
+class HTTPError(Error):
     def __str__(self):
-        if self.message:
-            return f'{self.__name__} {self.message}'
-        else:
-            return f'{self.__name__} has been raised'
+        return f'{self.__class__.__name__}. Эндпоинт не доступен'
 
 
-class HTTPError(TokenException):
-    def __init__(self, *args):
-        super().__init__(self, *args)
+class StatusError(Error):
+    def __str__(self):
+        return f'{self.__class__.__name__}. Неожиданный статус домашней работы'
 
 
-class StatusError(TokenException):
-    def __init__(self, *args):
-        super().__init__(self, *args)
-
-
-class SendMessageError(TokenException):
-    def __init__(self, *args):
-        super().__init__(self, *args)
+class SendMessageError(Error):
+    def __str__(self):
+        return 'f{self.__class__.__name__}. Ошибка отправки сообщения'
