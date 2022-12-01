@@ -29,8 +29,6 @@ MESSAGE_ERROR_HOMEWORKS_KEY = 'По ключу `{homeworks}` передаетс�
 MESSAGE_ERROR_HOMEWORKS_NONE = 'Ключ `{homework_name}` не обнаружен'
 MESSAGE_ERROR_REQUEST = 'Ошибка запроса'
 
-MESSAGE_TELEGRAM = 'Сообщение в телеграмм отправлено'
-
 HOMEWORK_VERDICTS = {
     'approved': 'Работа проверена: ревьюеру всё понравилось. Ура!',
     'reviewing': 'Работа взята на проверку ревьюером.',
@@ -77,7 +75,7 @@ def send_message(bot: telegram.Bot, message: Union[str, Exception]) -> None:
     except Exception as err:
         logging.exception('Сообщение не отправлено')
         raise SendMessageError from err
-    logger.debug(MESSAGE_TELEGRAM)
+    logger.debug('Сообщение в телеграмм отправлено')
 
 
 def get_api_answer(timestamp: int) -> dict:
@@ -171,7 +169,9 @@ def main() -> None:
 
     while True:
         try:
-            response = check_response(get_api_answer(timestamp)).get('homeworks')
+            response = check_response(get_api_answer(timestamp)).get(
+                'homeworks'
+            )
             if response:
                 status_message = parse_status(response[0])
                 send_message(bot, status_message)

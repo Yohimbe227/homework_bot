@@ -5,9 +5,7 @@ class Error(Exception):
 class TokenError(Error):
     def __init__(self, token):
         self.token = token
-        super().__init__(
-            f'Отсутствует необходимый токен: {token}'
-        )
+        super().__init__(f'Отсутствует необходимый токен: {token}')
 
 
 class HTTPError(Error):
