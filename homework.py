@@ -177,7 +177,7 @@ def main() -> None:
                 send_message(bot, status_message)
             else:
                 logger.debug('Статус не обновлялся')
-        except (TypeError, HTTPError, StatusError, NameError) as err:
+        except (NameError, TypeError, HTTPError, StatusError) as err:
             if err != error:
                 send_message(bot, err)
                 error = err
