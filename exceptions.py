@@ -10,14 +10,14 @@ class TokenError(Error):
 
 class HTTPError(Error):
     def __str__(self):
-        return f'{self.__class__.__name__}. Эндпоинт не доступен'
+        return f'{type(self).__name__}. Эндпоинт не доступен'
 
 
 class StatusError(Error):
     def __str__(self):
-        return f'{self.__class__.__name__}. Неожиданный статус домашней работы'
+        return f'{type(self).__name__}. Неожиданный статус домашней работы'
 
 
 class SendMessageError(Error):
     def __str__(self):
-        return 'f{self.__class__.__name__}. Ошибка отправки сообщения'
+        return 'f{type(self).__name__}. Ошибка отправки сообщения'

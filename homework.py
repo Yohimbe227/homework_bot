@@ -10,6 +10,7 @@ import telegram
 from dotenv import load_dotenv
 
 from exceptions import HTTPError, SendMessageError, StatusError, TokenError
+from decorators import func_logger
 
 load_dotenv()
 
@@ -17,7 +18,7 @@ PRACTICUM_TOKEN = os.getenv('PRACTICUM_TOKEN')
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
-RETRY_PERIOD = 600  # 10 minutes, 60*10
+RETRY_PERIOD = 6  # 10 минут, 60*10
 ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
 HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
 
@@ -34,31 +35,34 @@ HOMEWORK_VERDICTS = {
     'reviewing': 'Работа взята на проверку ревьюером.',
     'rejected': 'Работа проверена: у ревьюера есть замечания.',
 }
+notoken = [
+    token
+    for token in ('PRACTICUM_TOKEN', 'TELEGRAM_TOKEN', 'TELEGRAM_CHAT_ID')
+    if globals().get(token) is None
+]
 
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s, %(levelname)s, %(message)s, %(funcName)s',
-)
-logger = logging.getLogger(__name__)
-logger.addHandler(StreamHandler())
+if __name__ == '__main__':
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format='%(asctime)s, %(levelname)s, %(message)s, %(funcName)s',
+    )
+    logger = logging.getLogger(__name__)
+    logger.addHandler(StreamHandler())
 
 
+@func_logger('Проверка токенов')
 def check_tokens() -> None:
     """Доступность токенов в переменных окружения.
 
     Raises:
         TokenError: отстутствует какой либо из необходимых токенов.
     """
-    notoken = [
-        token
-        for token in ('PRACTICUM_TOKEN', 'TELEGRAM_TOKEN', 'TELEGRAM_CHAT_ID')
-        if globals().get(token) is None
-    ]
     if notoken:
         logger.critical('Необходимый токен: %s не обнаружен', notoken)
         raise TokenError(notoken)
 
 
+@func_logger('Отправка сообщений в телеграм')
 def send_message(bot: telegram.Bot, message: Union[str, Exception]) -> None:
     """
     Отправляет сообщения в телеграм.
@@ -78,6 +82,7 @@ def send_message(bot: telegram.Bot, message: Union[str, Exception]) -> None:
     logger.debug('Сообщение в телеграмм отправлено')
 
 
+@func_logger('Получение ответа API')
 def get_api_answer(timestamp: int) -> dict:
     """Получаем ответ от эндпоинта.
 
@@ -106,6 +111,7 @@ def get_api_answer(timestamp: int) -> dict:
     return response.json()
 
 
+@func_logger('Проверка формата ответа API')
 def check_response(response: dict) -> dict:
     """Проверка ответа эндпоинта на соответствие документации API.
 
@@ -132,6 +138,7 @@ def check_response(response: dict) -> dict:
     return response
 
 
+@func_logger('Извлечение статуса работы')
 def parse_status(homework: dict) -> str:
     """Получение строки для отправки телеграм.
 
@@ -146,7 +153,6 @@ def parse_status(homework: dict) -> str:
         NameError: Отсутствие ключа `{homework_name}` в словаре `{homework}`.
     """
     status = homework.get('status')
-
     if status not in HOMEWORK_VERDICTS or status is None:
         logger.error('Неожиданный статус домашней работы: %s', status)
         raise StatusError
@@ -165,7 +171,7 @@ def main() -> None:
     check_tokens()
     timestamp = int(time.time())
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
-    error = ''
+    error = None
 
     while True:
         try:
@@ -186,9 +192,8 @@ def main() -> None:
             if err != error:
                 send_message(bot, err)
                 error = err
-        else:
-            timestamp = get_api_answer(timestamp).get('current_date')
         finally:
+            timestamp = get_api_answer(timestamp).get('current_date')
             time.sleep(RETRY_PERIOD)
 
 
