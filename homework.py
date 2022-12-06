@@ -47,7 +47,6 @@ if __name__ == '__main__':
         format='%(asctime)s, %(levelname)s, %(message)s, %(funcName)s',
     )
     logger = logging.getLogger(__name__)
-    logger.addHandler(StreamHandler())
 
 
 @func_logger('Проверка токенов')
@@ -195,6 +194,7 @@ def main() -> None:
         finally:
             timestamp = get_api_answer(timestamp).get('current_date')
             time.sleep(RETRY_PERIOD)
+
 
 
 if __name__ == '__main__':
