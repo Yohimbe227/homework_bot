@@ -2,7 +2,6 @@ import logging
 import os
 import time
 from http import HTTPStatus
-from logging import StreamHandler
 from typing import Union
 
 import requests
@@ -18,7 +17,7 @@ PRACTICUM_TOKEN = os.getenv('PRACTICUM_TOKEN')
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
-RETRY_PERIOD = 6  # 10 минут, 60*10
+RETRY_PERIOD = 600  # 10 минут, 60*10
 ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
 HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
 
@@ -63,8 +62,7 @@ def check_tokens() -> None:
 
 @func_logger('Отправка сообщений в телеграм')
 def send_message(bot: telegram.Bot, message: Union[str, Exception]) -> None:
-    """
-    Отправляет сообщения в телеграм.
+    """Отправляет сообщения в телеграм.
 
     Args:
         bot: объект телеграм бота
@@ -122,6 +120,7 @@ def check_response(response: dict) -> dict:
 
     Raises:
         TypeError: Ошибка несоответствия типа данных ожидаемому.
+
     """
     if not isinstance(response, dict):
         logger.error(MESSAGE_ERROR_DICT)
@@ -150,6 +149,7 @@ def parse_status(homework: dict) -> str:
     Raises:
         StatusError: Несоответствие статуса домашней работы ожидаемому.
         NameError: Отсутствие ключа `{homework_name}` в словаре `{homework}`.
+
     """
     status = homework.get('status')
     if status not in HOMEWORK_VERDICTS or status is None:
@@ -194,7 +194,6 @@ def main() -> None:
         finally:
             timestamp = get_api_answer(timestamp).get('current_date')
             time.sleep(RETRY_PERIOD)
-
 
 
 if __name__ == '__main__':
