@@ -1,7 +1,15 @@
+# Проект homeworkbot
+_**Основной стэк**_:  
+![Python](https://img.shields.io/badge/python-3.11-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
+![Telegram-bot](https://img.shields.io/badge/telegram-bot-ff1709?style=for-the-badge&logo=aiogram&logoColor=white&color=ff1709&labelColor=gray)
+![SQLite3](https://img.shields.io/badge/sqlite-3-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
 
-# Учебный проект homeworkbot
-### Содержание и возможности:
-Проект homeworkbot помогает следить за статусом последней выполненной домашней работы и при его изменении отправлят уведомление в телеграм. 
+**Проект был выполнен в учебных целях, чтобы попрактиковаться в работе с
+API и создании телеграм ботов.** _А еще удобно!_
+
+### Content and Features:
+Проект homeworkbot помогает следить за статусом последней выполненной домашней
+работы и при его изменении отправлят уведомление в телеграм. 
 
 ## Installation
 Создайте в основной директории проекта файл .env по шаблону:
@@ -17,5 +25,6 @@ python homeworkbot.py
 
 ## License
 
-Студентам Яндекс Практикума копировать запрещено совсем и категорически! А учиться кто будет? ;)
+Студентам Яндекс Практикума копировать запрещено совсем и категорически!
+А учиться кто будет? ;)
 
